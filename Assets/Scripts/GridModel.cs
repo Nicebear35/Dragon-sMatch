@@ -81,7 +81,7 @@ public class GridModel
             yield break;
         }
 
-        yield return current; // это что такое? втора€ €чейка всегда возвращаетс€, если их 2 р€дом с одинаковыми значени€ми
+        yield return current;
         var filteredPath = current.Where(currentCell => passedCells.Add(currentCell)).ToArray();
 
         foreach (var cell in filteredPath)
@@ -104,12 +104,8 @@ public class GridModel
     {
         Path path = new Path(start, direction);
 
-        int counter = 0; //дл€ дебага
-
         while (TryMove(start, direction, out CellModel result) && start.Value == result.Value)
         {
-            counter++; // дл€ дебага
-
             start = result;
             path.Add(result);
         }
@@ -159,13 +155,6 @@ public class GridModel
     {
         var cells = group.OrderByDescending(cell => cell.Coordinates.y).ToArray();
 
-        Debug.Log($"ячейки на удаление: {cells.Length} / LastIndex: {cells.Length - 2}");
-
-        foreach (var cell in cells)
-        {
-            Debug.Log($"координаты: {cell.Coordinates}");
-        }
-
         int lastIndex = cells.Length - 2;
         int last = _grid.GetLength(1) - 1;
 
@@ -176,18 +165,11 @@ public class GridModel
 
         for (int i = 0; i <= lastIndex; i++)
         {
-            Debug.Log("мы в цикле");
-
             if (cells[i].Coordinates.y != cells[i + 1].Coordinates.y + 1)
             {
 
-                Debug.Log($"cells[i]: {cells[i].Coordinates} / cells[i + 1]: {cells[i + 1].Coordinates} / i: {i}");
-
                 CellModel start = cells[i];
-                Debug.Log($"X группы: {group.Key} / начало: {start.Coordinates} / верхний Y: {last}");
                 yield return new ColumnPart(this, group.Key, start.Coordinates.y, last);
-
-                //last = cells[i].Coordinates.y - 1;
             }
             if (i == lastIndex)
             {
@@ -201,11 +183,8 @@ public class GridModel
     {
         int fallsCount = column.Count - amountToDelete;
 
-        Debug.Log($"fallsCount: {fallsCount}");
-
         for (int i = 0; i < fallsCount; i++)
         {
-            Debug.Log($"в €чейку {column[i].Coordinates} падает {column[i + amountToDelete].Coordinates}");
             column[i].SetValue(column[i + amountToDelete].Value); 
             CellFallenDown?.Invoke(column[i + amountToDelete].Coordinates, column[i].Coordinates);
         }
@@ -213,7 +192,6 @@ public class GridModel
         for (int i = 0; i < amountToDelete; i++)
         {
             int random = RandomCellValue;
-            Debug.Log($"в €чейке {column[i + fallsCount].Coordinates} спавнитс€ значение {random}");
             column[i + fallsCount].SetValue(random);
             CellCreated?.Invoke(column[i + fallsCount].Coordinates, amountToDelete + column[i+fallsCount].Coordinates.y);
         }
@@ -253,14 +231,12 @@ public class GridModel
 
     public bool SearchAdditionalPaths(out IEnumerable<Vector2Int> coordinatesToDelete)
     {
-        Debug.Log("»щем доп комбинации");
         List<CellModel> cellsToDelete = new List<CellModel>();
 
         while (_cellsToSearchFrom.Count > 0)
         {
             cellsToDelete.Merge(FindShape(_cellsToSearchFrom.Dequeue(), TargetCoincidenceLength));
         }
-        Debug.Log($"длина очереди после распаковки: {_cellsToSearchFrom.Count}");
         coordinatesToDelete = cellsToDelete.Select(cell => cell.Coordinates).Distinct();
 
         return cellsToDelete.Count > 0;

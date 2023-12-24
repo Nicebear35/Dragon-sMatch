@@ -151,8 +151,6 @@ public class GridView : MonoBehaviour
 
         if (_model.SearchAdditionalPaths(out IEnumerable<Vector2Int> coordinatesToDelete)) 
         {
-            Debug.Log("ProcessAdditionalCombinations");
-
             foreach (var coordinate in coordinatesToDelete)
             {
                 _grid[coordinate.x, coordinate.y].DeleteElement();

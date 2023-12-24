@@ -5,7 +5,7 @@ public class CellView : MonoBehaviour
 {
     private const float ScalingUpTime = 0.05f;
     private const float ScalingDownTime = 0.15f;
-    private const float MovingTime = 3f;
+    private const float MovingTime = 0.5f;
 
     public void Delete()
     {
